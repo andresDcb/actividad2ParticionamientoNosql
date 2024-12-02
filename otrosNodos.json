@@ -1,0 +1,40 @@
+MongoDB shell version v4.2.25
+connecting to: mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("6d9e7a4b-2187-4b34-9565-40ac0c43f056") }
+MongoDB server version: 4.2.25
+Server has startup warnings:
+2024-06-01T04:36:29.326-0500 I  CONTROL  [initandlisten]
+2024-06-01T04:36:29.326-0500 I  CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2024-06-01T04:36:29.327-0500 I  CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2024-06-01T04:36:29.327-0500 I  CONTROL  [initandlisten]
+---
+Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+metrics about your deployment (disk utilization, CPU, operation statistics, etc).
+
+The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+and anyone you share the URL with. MongoDB may use this information to make product
+improvements and to suggest MongoDB products and deployment options to you.
+
+To enable free monitoring, run the following command: db.enableFreeMonitoring()
+To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+---
+
+> shard1 = new Mongo("localhost:20000")
+connection to localhost:20000
+> shard1DB = shard1.getDB("torneoDeportivo")
+torneoDeportivo
+> shard1DB.equipos.count()
+0
+> shard2= new Mongo("localhost:20001")
+connection to localhost:20001
+> shard2DB = shard2.getDB("torneoDeportivo")
+torneoDeportivo
+> shard2DB.equipos.count()
+1150000
+> shard3= new Mongo("localhost:20002")
+connection to localhost:20002
+> shard3DB = shard3.getDB("torneoDeportivo")
+torneoDeportivo
+> shard3DB.equipos.count()
+0
+>

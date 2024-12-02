@@ -1,0 +1,350 @@
+> db = (new Mongo("localhost:20006")).getDB("torneoDeportivo");
+torneoDeportivo
+mongos> for(i = 0; i < 1150000 ; i++){
+...
+...  db.equipos.insert
+...                   ({
+...
+...     nombre : "Equipo" + i,
+...       fundacion : 1234 + i,
+...         pais : "paisABC" + i,
+...         entrenador : "Entrenador" + i
+...
+...             });
+...
+... };
+WriteResult({ "nInserted" : 1 })
+mongos> db.equipos.coun();
+2024-06-01T18:06:35.776-0500 E  QUERY    [js] TypeError: db.equipos.coun is not a function :
+@(shell):1:1
+mongos> db.equipos.count();
+1150000
+mongos> shard1 = new Mongo("localhost:20006")
+connection to localhost:20006
+mongos> sh.status()
+--- Sharding Status ---
+  sharding version: {
+        "_id" : 1,
+        "minCompatibleVersion" : 5,
+        "currentVersion" : 6,
+        "clusterId" : ObjectId("665b98c1e56f9e62db786e2c")
+  }
+  shards:
+        {  "_id" : "__unknown_name__-rs0",  "host" : "__unknown_name__-rs0/AndresCruz:20000",  "state" : 1 }
+        {  "_id" : "__unknown_name__-rs1",  "host" : "__unknown_name__-rs1/AndresCruz:20001",  "state" : 1 }
+        {  "_id" : "__unknown_name__-rs2",  "host" : "__unknown_name__-rs2/AndresCruz:20002",  "state" : 1 }
+  active mongoses:
+        "4.2.25" : 1
+  autosplit:
+        Currently enabled: no
+  balancer:
+        Currently enabled:  no
+        Currently running:  no
+        Failed balancer rounds in last 5 attempts:  0
+        Migration Results for the last 24 hours:
+                No recent migrations
+  databases:
+        {  "_id" : "config",  "primary" : "config",  "partitioned" : true }
+                config.system.sessions
+                        shard key: { "_id" : 1 }
+                        unique: false
+                        balancing: true
+                        chunks:
+                                __unknown_name__-rs0    1
+                        { "_id" : { "$minKey" : 1 } } -->> { "_id" : { "$maxKey" : 1 } } on : __unknown_name__-rs0 Timestamp(1, 0)
+        {  "_id" : "torneoDeportivo",  "primary" : "__unknown_name__-rs1",  "partitioned" : false,  "version" : {  "uuid" : UUID("f071c875-f065-4fc6-b6b8-9116183b2753"),  "lastMod" : 1 } }
+
+mongos> sh.enableSharding("torneoDeportivo")
+{
+        "ok" : 1,
+        "operationTime" : Timestamp(1717285754, 3),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1717285754, 3),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+mongos> db.equipos.ensureIndex({nombre : 1})
+{
+        "raw" : {
+                "__unknown_name__-rs1/AndresCruz:20001" : {
+                        "createdCollectionAutomatically" : false,
+                        "numIndexesBefore" : 1,
+                        "numIndexesAfter" : 2,
+                        "ok" : 1
+                }
+        },
+        "ok" : 1,
+        "operationTime" : Timestamp(1717286052, 1),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1717286052, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+mongos> sh.shardCollection("torneoDeportivo.equipos",{nombre : 1} )
+{
+        "collectionsharded" : "torneoDeportivo.equipos",
+        "collectionUUID" : UUID("be4a9a16-bb72-4a30-a7d2-8615872f6861"),
+        "ok" : 1,
+        "operationTime" : Timestamp(1717286436, 8),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1717286436, 8),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+mongos> sh.status()
+--- Sharding Status ---
+  sharding version: {
+        "_id" : 1,
+        "minCompatibleVersion" : 5,
+        "currentVersion" : 6,
+        "clusterId" : ObjectId("665b98c1e56f9e62db786e2c")
+  }
+  shards:
+        {  "_id" : "__unknown_name__-rs0",  "host" : "__unknown_name__-rs0/AndresCruz:20000",  "state" : 1 }
+        {  "_id" : "__unknown_name__-rs1",  "host" : "__unknown_name__-rs1/AndresCruz:20001",  "state" : 1 }
+        {  "_id" : "__unknown_name__-rs2",  "host" : "__unknown_name__-rs2/AndresCruz:20002",  "state" : 1 }
+  active mongoses:
+        "4.2.25" : 1
+  autosplit:
+        Currently enabled: no
+  balancer:
+        Currently enabled:  no
+        Currently running:  no
+        Failed balancer rounds in last 5 attempts:  0
+        Migration Results for the last 24 hours:
+                No recent migrations
+  databases:
+        {  "_id" : "config",  "primary" : "config",  "partitioned" : true }
+                config.system.sessions
+                        shard key: { "_id" : 1 }
+                        unique: false
+                        balancing: true
+                        chunks:
+                                __unknown_name__-rs0    1
+                        { "_id" : { "$minKey" : 1 } } -->> { "_id" : { "$maxKey" : 1 } } on : __unknown_name__-rs0 Timestamp(1, 0)
+        {  "_id" : "torneoDeportivo",  "primary" : "__unknown_name__-rs1",  "partitioned" : true,  "version" : {  "uuid" : UUID("f071c875-f065-4fc6-b6b8-9116183b2753"),  "lastMod" : 1 } }
+                torneoDeportivo.equipos
+                        shard key: { "nombre" : 1 }
+                        unique: false
+                        balancing: true
+                        chunks:
+                                __unknown_name__-rs1    2
+                        { "nombre" : { "$minKey" : 1 } } -->> { "nombre" : "Equipo456036" } on : __unknown_name__-rs1 Timestamp(1, 0)
+                        { "nombre" : "Equipo456036" } -->> { "nombre" : { "$maxKey" : 1 } } on : __unknown_name__-rs1 Timestamp(1, 1)
+
+mongos> sh.getBalancerState()
+false
+mongos>  sh.setBalancerState(true)
+{
+        "ok" : 1,
+        "operationTime" : Timestamp(1717287707, 3),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1717287707, 3),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+mongos> sh.getBalancerState()
+true
+mongos> sh.isBalancerRunning()
+false
+mongos> shard1 = new Mongo("localhost:20000")
+connection to localhost:20000
+mongos> shard1DB = shard1.getDB("torneoDeportivo")
+torneoDeportivo
+mongos> shard1DB.equipos.count()
+0
+mongos> shard2 = new Mongo("localhost:20001")
+connection to localhost:20001
+mongos> shard2DB = shard1.getDB("torneoDeportivo")
+torneoDeportivo
+mongos> shard2DB.equipos.count()
+0
+mongos> shard3 = new Mongo("localhost:20002")
+connection to localhost:20002
+mongos> shard3DB = shard1.getDB("torneoDeportivo")
+torneoDeportivo
+mongos> shard3DB.equipos.count()
+0
+mongos>  sh.getBalancerState()
+true
+mongos> sh.isBalancerRunning()
+false
+mongos> shard1 = new Mongo("localhost:20000")
+connection to localhost:20000
+mongos> shard1DB = shard1.getDB("torneoDeportivo")
+torneoDeportivo
+mongos>  shard1DB.equipos.count()
+0
+mongos> shard2 = new Mongo("localhost:20001")
+connection to localhost:20001
+mongos>  shard2DB = shard1.getDB("torneoDeportivo")
+torneoDeportivo
+mongos> shard2DB.equipos.count()
+0
+mongos> shard3 = new Mongo("localhost:20002")
+connection to localhost:20002
+mongos> shard3DB = shard1.getDB("torneoDeportivo")
+torneoDeportivo
+mongos>  shard3DB.equipos.count()
+0
+mongos> cluster.stop()
+2024-06-01T20:52:40.160-0500 E  QUERY    [js] ReferenceError: cluster is not defined :
+@(shell):1:1
+mongos> db.adminCommand( { listShards: 1 } )
+{
+        "shards" : [
+                {
+                        "_id" : "__unknown_name__-rs0",
+                        "host" : "__unknown_name__-rs0/AndresCruz:20000",
+                        "state" : 1
+                },
+                {
+                        "_id" : "__unknown_name__-rs1",
+                        "host" : "__unknown_name__-rs1/AndresCruz:20001",
+                        "state" : 1
+                },
+                {
+                        "_id" : "__unknown_name__-rs2",
+                        "host" : "__unknown_name__-rs2/AndresCruz:20002",
+                        "state" : 1
+                }
+        ],
+        "ok" : 1,
+        "operationTime" : Timestamp(1717293215, 1),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1717293215, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+}
+mongos> sh.isBalancerRunning()
+false
+mongos> sh.isBalancerRunning(true)
+2024-06-01T21:09:49.010-0500 E  QUERY    [js] TypeError: configDB.adminCommand is not a function :
+sh.isBalancerRunning@src/mongo/shell/utils_sh.js:169:18
+@(shell):1:1
+mongos>  shard2 = new Mongo("localhost:20001")
+connection to localhost:20001
+mongos> shard2DB = shard2.getDB("torneoDeportivo")
+torneoDeportivo
+mongos> shard2DB.equipos.count()
+604401
+mongos> shard3 = new Mongo("localhost:20002")
+connection to localhost:20002
+mongos> shard3DB = shard3.getDB("torneoDeportivo")
+torneoDeportivo
+mongos> shard3DB.equipos.count()
+545599
+mongos> shard4 = new Mongo("localhost:20004")
+connection to localhost:20004
+mongos> shard4DB = shard4.getDB("torneoDeportivo
+2024-06-02T02:29:05.149-0500 E  QUERY    [js] SyntaxError: "" literal not terminated before end of script :
+@(shell):1:40
+mongos> shard4DB = shard4.getDB("torneoDeportivo")
+torneoDeportivo
+mongos> shard4DB.equipos.count()
+2024-06-02T02:29:45.252-0500 E  QUERY    [js] Error: count failed: {
+        "operationTime" : Timestamp(1717313380, 1),
+        "ok" : 0,
+        "errmsg" : "not master and slaveOk=false",
+        "code" : 13435,
+        "codeName" : "NotPrimaryNoSecondaryOk",
+        "$gleStats" : {
+                "lastOpTime" : Timestamp(0, 0),
+                "electionId" : ObjectId("000000000000000000000000")
+        },
+        "lastCommittedOpTime" : Timestamp(1717313380, 1),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1717313380, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+                        "keyId" : NumberLong(0)
+                }
+        }
+} :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+DBQuery.prototype.count@src/mongo/shell/query.js:376:11
+DBCollection.prototype.count@src/mongo/shell/collection.js:1401:12
+@(shell):1:1
+mongos> sh.status();
+--- Sharding Status ---
+  sharding version: {
+        "_id" : 1,
+        "minCompatibleVersion" : 5,
+        "currentVersion" : 6,
+        "clusterId" : ObjectId("665b98c1e56f9e62db786e2c")
+  }
+  shards:
+        {  "_id" : "__unknown_name__-rs0",  "host" : "__unknown_name__-rs0/AndresCruz:20000",  "state" : 1 }
+        {  "_id" : "__unknown_name__-rs1",  "host" : "__unknown_name__-rs1/AndresCruz:20001",  "state" : 1 }
+        {  "_id" : "__unknown_name__-rs2",  "host" : "__unknown_name__-rs2/AndresCruz:20002",  "state" : 1 }
+  active mongoses:
+        "4.2.25" : 1
+  autosplit:
+        Currently enabled: yes
+  balancer:
+        Currently enabled:  yes
+        Currently running:  no
+        Failed balancer rounds in last 5 attempts:  0
+        Migration Results for the last 24 hours:
+                1 : Success
+  databases:
+        {  "_id" : "config",  "primary" : "config",  "partitioned" : true }
+                config.system.sessions
+                        shard key: { "_id" : 1 }
+                        unique: false
+                        balancing: true
+                        chunks:
+                                __unknown_name__-rs0    1
+                        { "_id" : { "$minKey" : 1 } } -->> { "_id" : { "$maxKey" : 1 } } on : __unknown_name__-rs0 Timestamp(1, 0)
+        {  "_id" : "torneoDeportivo",  "primary" : "__unknown_name__-rs1",  "partitioned" : true,  "version" : {  "uuid" : UUID("f071c875-f065-4fc6-b6b8-9116183b2753"),  "lastMod" : 1 } }
+                torneoDeportivo.equipos
+                        shard key: { "nombre" : 1 }
+                        unique: false
+                        balancing: true
+                        chunks:
+                                __unknown_name__-rs1    1
+                                __unknown_name__-rs2    1
+                        { "nombre" : { "$minKey" : 1 } } -->> { "nombre" : "Equipo456036" } on : __unknown_name__-rs2 Timestamp(2, 0)
+                        { "nombre" : "Equipo456036" } -->> { "nombre" : { "$maxKey" : 1 } } on : __unknown_name__-rs1 Timestamp(2, 1)
+
+mongos> db.adminCommand( { listShards: 1 } )
+{
+        "shards" : [
+                {
+                        "_id" : "__unknown_name__-rs0",
+                        "host" : "__unknown_name__-rs0/AndresCruz:20000",
+                        "state" : 1
+                },
+                {
+                        "_id" : "__unknown_name__-rs1",
+                        "host" : "__unknown_name__-rs1/AndresCruz:20001",
+                        "state" : 1
+                },
+                {
+                        "_id" : "__unknown_name__-rs2",
+                        "host" : "__unknown_name__-rs2/AndresCruz:20002",
+                        "state" : 1
+                }
+        ],
+        "ok" : 1,
+        "operationTime" : Timestamp(1717319767, 1),
+        "$clusterTime" : {
+                "clusterTime" : Timestamp(1717319767, 1),
+                "signature" : {
+                        "hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+        Conclusión: Al distribuir los datos entre varios nodos, la base de datos está mejor preparada para manejar fallos individuales. Si un nodo falla, los datos aún son accesibles a través de los otros nodos, asegurando la continuidad del servicio. Esto cumple con el requerimiento de alta disponibilidad y tolerancia a fallos.Conclusión: Al distribuir los datos entre varios nodos, la base de datos está mejor preparada para manejar fallosindividuales. Si un nodo falla, los datos aún son accesibles a través de los otros nodos, asegurando la continuidad del servicio. Esto cumple con el requerimiento de alta disponibilidad y tolerancia a fallos. a través de los otros nodos, asegurando la continuidad del servicio. Esto cumple con el
